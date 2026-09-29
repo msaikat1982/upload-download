@@ -1,0 +1,32 @@
+Hi Creed and Dan,
+
+I wanted to follow up on the two CyberArk VMs, as they do not appear to have been provisioned yet in the DEV subscription (CIP-DEV). Could you please share an update on the current status?
+
+This is a priority for us, as we are unable to begin the planned testing and validation until the servers are available. We would appreciate your support in getting these provisioned at the earliest opportunity.
+
+Please also find below our responses to the points raised.
+
+1. Why are we not using a /24 subnet in the DEV subscription?
+
+As Amitendra mentioned, 32 IP addresses should be sufficient for the CyberArk connectors. Using a smaller, dedicated subnet also provides appropriate subnet-level isolation for the CyberArk components without allocating a larger address range than required.
+
+2. Why do we need Azure Firewall rules and NSGs when connectivity is already allowed?
+
+There are a few reasons for maintaining these controls.
+
+Firstly, most of the proposed configuration is intended to restrict traffic rather than introduce additional access. For example, NSG rule 4000 denies any remaining inbound traffic from the landing zone network, while the other rules explicitly define the limited traffic that is permitted to reach the two CyberArk connectors.
+
+Secondly, these servers serve a security-sensitive function. They act as CyberArk connectors through which privileged sessions are brokered and maintain connectivity with the CyberArk environment. For this reason, we believe it is appropriate to apply more restrictive network controls than we would typically use for standard application VMs.
+
+Finally, DEV is where we intend to validate the configuration before progressing through CAB and into Production. Ideally, the network controls validated in DEV should closely reflect the intended Production configuration so that our testing provides meaningful evidence for the Production implementation.
+
+One example is the deny-brokered-to-onprem rule, which prevents an Azure-based connector from reaching an on-premises server that has not yet been migrated. Our test plan considers this an important validation point, so having the rule in place during DEV testing will allow us to confirm the expected behaviour before moving forward.
+
+For clarity, we are not proposing a completely new rule set. The requirement is to add 16 firewall rules to the existing CyberArk collection group within the Central US hub policy, along with 11 NSG rules at the subnet level.
+
+We are happy to walk through the proposed rules together if that would be helpful.
+
+Thanks for your support.
+
+Regards,
+Saikat
